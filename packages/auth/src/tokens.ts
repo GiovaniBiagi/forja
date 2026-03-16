@@ -1,5 +1,13 @@
 import { SignJWT, jwtVerify } from "jose";
-import type { TokenPayload } from "./schemas.js";
+
+/** Base token payload structure. Role is a string to support any consumer-defined roles. */
+export interface TokenPayload {
+  sub: string;
+  email: string;
+  name: string;
+  role: string;
+  tenantId: string;
+}
 
 /** JWT token configuration. */
 export interface TokenConfig {

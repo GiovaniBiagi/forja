@@ -1,17 +1,9 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import {
-  type AuthService,
-  type AuthUser,
-  type Role,
-  AuthError,
-  RegisterInput,
-  LoginInput,
-  RefreshInput,
-} from "@forja/auth";
+import { type AuthService, AuthError } from "@forja/auth";
 
 declare module "fastify" {
   interface FastifyRequest {
-    authUser?: AuthUser;
+    authUser?: Record<string, unknown>;
   }
 }
 
@@ -38,6 +30,7 @@ export async function authPlugin(
   options: AuthPluginOptions
 ) {
   const { service, tenantResolver = defaultTenantResolver } = options;
+  const { schemas } = service;
 
   // Error handler for AuthError
   fastify.setErrorHandler((error, _request, reply) => {
@@ -53,8 +46,8 @@ export async function authPlugin(
   // POST /register
   fastify.post("/register", async (request: FastifyRequest, reply: FastifyReply) => {
     const tenantId = tenantResolver(request);
-    const input = RegisterInput.parse({ ...(request.body as object), tenantId });
-    const result = await service.register(input);
+    const body = request.body as Record<string, unknown>;
+    const result = await service.register({ ...body, tenantId } as Parameters<typeof service.register>[0]);
 
     return reply.status(201).send(result);
   });
@@ -62,15 +55,15 @@ export async function authPlugin(
   // POST /login
   fastify.post("/login", async (request: FastifyRequest, reply: FastifyReply) => {
     const tenantId = tenantResolver(request);
-    const input = LoginInput.parse({ ...(request.body as object), tenantId });
-    const result = await service.login(input);
+    const body = request.body as Record<string, unknown>;
+    const result = await service.login({ ...body, tenantId } as { email: string; password: string; tenantId: string });
 
     return reply.status(200).send(result);
   });
 
   // POST /refresh
   fastify.post("/refresh", async (request: FastifyRequest, reply: FastifyReply) => {
-    const { refreshToken } = RefreshInput.parse(request.body);
+    const { refreshToken } = schemas.RefreshInput.parse(request.body);
     const result = await service.refresh(refreshToken);
 
     return reply.status(200).send(result);
@@ -103,7 +96,7 @@ export function authenticate(service: AuthService) {
   };
 }
 
-export function requireRole(service: AuthService, ...roles: Role[]) {
+export function requireRole(service: AuthService, ...roles: string[]) {
   const checkRole = service.authorize(...roles);
 
   return async (request: FastifyRequest, reply: FastifyReply) => {

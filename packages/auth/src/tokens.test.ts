@@ -7,8 +7,7 @@ import {
   verifyRefreshToken,
   TOKEN_AUDIENCE,
 } from "./tokens.js";
-import type { TokenPayload } from "./schemas.js";
-import type { TokenConfig } from "./tokens.js";
+import type { TokenPayload, TokenConfig } from "./tokens.js";
 
 const config: TokenConfig = {
   secret: "test-secret-that-is-long-enough-for-hmac",
