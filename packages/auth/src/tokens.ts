@@ -7,6 +7,10 @@ export interface TokenPayload {
   name: string;
   role: string;
   tenantId: string;
+  /** JWT ID — unique identifier for this token. Used for blacklisting and rotation. */
+  jti?: string;
+  /** Expiration timestamp (seconds since epoch). Present after verification. */
+  exp?: number;
 }
 
 /** JWT token configuration. */
@@ -43,6 +47,7 @@ export async function generateAccessToken(
   return new SignJWT({ ...payload })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
+    .setJti(crypto.randomUUID())
     .setExpirationTime(config.accessTokenExpiry ?? "15m")
     .setIssuer(config.issuer ?? "forja")
     .setAudience(TOKEN_AUDIENCE.access)
@@ -63,6 +68,7 @@ export async function generateRefreshToken(
   return new SignJWT({ ...payload })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
+    .setJti(crypto.randomUUID())
     .setExpirationTime(config.refreshTokenExpiry ?? "7d")
     .setIssuer(config.issuer ?? "forja")
     .setAudience(TOKEN_AUDIENCE.refresh)

@@ -56,7 +56,25 @@ export function createAuthSchemas<T extends z.ZodEnum<[string, ...string[]]>>(
     tenantId: z.string(),
   });
 
-  return { RegisterInput, LoginInput, RefreshInput, TokenPayload, AuthUser };
+  const RequestPasswordResetInput = z.object({
+    email: normalizedEmail,
+    tenantId: z.string().min(1),
+  });
+
+  const ResetPasswordInput = z.object({
+    token: z.string().min(1),
+    password: strongPassword,
+    tenantId: z.string().min(1),
+  });
+
+  const VerifyEmailInput = z.object({
+    token: z.string().min(1),
+  });
+
+  return {
+    RegisterInput, LoginInput, RefreshInput, TokenPayload, AuthUser,
+    RequestPasswordResetInput, ResetPasswordInput, VerifyEmailInput,
+  };
 }
 
 /** Type helper to extract the inferred types from auth schemas. */
