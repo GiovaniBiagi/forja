@@ -5,11 +5,19 @@ import { hashPassword, verifyPassword } from "./password.js";
 import { generateTokenPair, verifyAccessToken, verifyRefreshToken } from "./tokens.js";
 import { Errors } from "./errors.js";
 
+/** Configuration for creating an auth service instance. */
 export interface AuthServiceConfig {
+  /** Storage adapter for persisting and querying users. */
   storage: AuthStorage;
+  /** JWT token configuration (secret, expiry, issuer). */
   tokens: TokenConfig;
 }
 
+/**
+ * Creates a framework-agnostic auth service with register, login, refresh, authenticate, and authorize capabilities.
+ * @param config - Storage adapter and token configuration.
+ * @returns Auth service methods.
+ */
 export function createAuthService(config: AuthServiceConfig) {
   const { storage, tokens } = config;
 

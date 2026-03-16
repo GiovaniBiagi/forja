@@ -1,7 +1,10 @@
+/** Typed error class for auth failures. Includes an error code and HTTP status. */
 export class AuthError extends Error {
   constructor(
     message: string,
+    /** Machine-readable error code (e.g., "INVALID_CREDENTIALS"). */
     public code: string,
+    /** Suggested HTTP status code for this error. Defaults to 400. */
     public statusCode: number = 400
   ) {
     super(message);

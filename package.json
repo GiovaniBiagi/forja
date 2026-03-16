@@ -5,12 +5,16 @@
     "build": "pnpm -r run build",
     "clean": "pnpm -r run clean",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "prepare": "husky"
   },
   "engines": {
     "node": ">=18"
   },
   "devDependencies": {
+    "@commitlint/cli": "^20.5.0",
+    "@commitlint/config-conventional": "^20.5.0",
+    "husky": "^9.1.7",
     "vitest": "^4.1.0"
   }
 }
