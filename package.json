@@ -1,0 +1,16 @@
+{
+  "name": "forja",
+  "private": true,
+  "scripts": {
+    "build": "pnpm -r run build",
+    "clean": "pnpm -r run clean",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.0"
+  }
+}
