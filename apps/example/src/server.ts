@@ -1,37 +1,16 @@
 import { z } from "zod";
 import Fastify from "fastify";
+import { PrismaClient } from "@prisma/client";
 import { createAuthService } from "@forja/auth";
-import type { AuthStorage, StoredUser, PublicUser, CreateUserInput } from "@forja/auth";
 import { authPlugin, authenticate, requireRole } from "@forja/auth-fastify";
+import { createPrismaAuthStorage } from "@forja/auth-prisma";
 
 // Define your own roles per project
 const Role = z.enum(["owner", "barber", "client"]);
 
-// In-memory storage for testing (replace with Prisma in a real app)
-const users: StoredUser[] = [];
-
-const storage: AuthStorage = {
-  async findUserByEmail(email, tenantId) {
-    return users.find((u) => u.email === email && u.tenantId === tenantId) ?? null;
-  },
-  async createUser(input: CreateUserInput): Promise<PublicUser> {
-    const user: StoredUser = {
-      id: crypto.randomUUID(),
-      email: input.email,
-      name: input.name,
-      role: input.role,
-      tenantId: input.tenantId,
-      passwordHash: input.passwordHash,
-    };
-    users.push(user);
-    return { id: user.id, email: user.email, name: user.name, role: user.role, tenantId: user.tenantId };
-  },
-  async findUserById(id, tenantId) {
-    const user = users.find((u) => u.id === id && u.tenantId === tenantId);
-    if (!user) return null;
-    return { id: user.id, email: user.email, name: user.name, role: user.role, tenantId: user.tenantId };
-  },
-};
+// Prisma + SQLite — data persists across restarts
+const prisma = new PrismaClient();
+const storage = createPrismaAuthStorage(prisma.user);
 
 const authService = createAuthService({
   storage,

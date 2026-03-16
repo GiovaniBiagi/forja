@@ -1,0 +1,161 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-03-16T00:00:00.000Z",
+  "__export_source": "insomnia.importers",
+  "resources": [
+    {
+      "_id": "wrk_forja",
+      "_type": "workspace",
+      "name": "Forja Auth Example",
+      "scope": "collection"
+    },
+    {
+      "_id": "env_base",
+      "_type": "environment",
+      "parentId": "wrk_forja",
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:3000",
+        "tenant_id": "barber-shop",
+        "access_token": "",
+        "refresh_token": ""
+      }
+    },
+    {
+      "_id": "fld_auth",
+      "_type": "request_group",
+      "parentId": "wrk_forja",
+      "name": "Auth"
+    },
+    {
+      "_id": "fld_protected",
+      "_type": "request_group",
+      "parentId": "wrk_forja",
+      "name": "Protected Routes"
+    },
+    {
+      "_id": "req_register_client",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Register (client)",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth/register",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "x-tenant-id", "value": "{{ _.tenant_id }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"client@test.com\",\n  \"password\": \"Secret1!x\",\n  \"name\": \"Client User\"\n}"
+      }
+    },
+    {
+      "_id": "req_register_owner",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Register (owner)",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth/register",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "x-tenant-id", "value": "{{ _.tenant_id }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"owner@test.com\",\n  \"password\": \"Secret1!x\",\n  \"name\": \"Owner User\",\n  \"role\": \"owner\"\n}"
+      }
+    },
+    {
+      "_id": "req_register_barber",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Register (barber)",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth/register",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "x-tenant-id", "value": "{{ _.tenant_id }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"barber@test.com\",\n  \"password\": \"Secret1!x\",\n  \"name\": \"Barber User\",\n  \"role\": \"barber\"\n}"
+      }
+    },
+    {
+      "_id": "req_login",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Login",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth/login",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "x-tenant-id", "value": "{{ _.tenant_id }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"client@test.com\",\n  \"password\": \"Secret1!x\"\n}"
+      }
+    },
+    {
+      "_id": "req_refresh",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Refresh Token",
+      "method": "POST",
+      "url": "{{ _.base_url }}/auth/refresh",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"refreshToken\": \"{{ _.refresh_token }}\"\n}"
+      }
+    },
+    {
+      "_id": "req_me",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Me (current user)",
+      "method": "GET",
+      "url": "{{ _.base_url }}/auth/me",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {{ _.access_token }}" }
+      ]
+    },
+    {
+      "_id": "req_protected",
+      "_type": "request",
+      "parentId": "fld_protected",
+      "name": "Protected (any role)",
+      "method": "GET",
+      "url": "{{ _.base_url }}/protected",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {{ _.access_token }}" }
+      ]
+    },
+    {
+      "_id": "req_admin",
+      "_type": "request",
+      "parentId": "fld_protected",
+      "name": "Admin (owner only)",
+      "method": "GET",
+      "url": "{{ _.base_url }}/admin",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {{ _.access_token }}" }
+      ]
+    },
+    {
+      "_id": "req_dashboard",
+      "_type": "request",
+      "parentId": "fld_protected",
+      "name": "Dashboard (owner + barber)",
+      "method": "GET",
+      "url": "{{ _.base_url }}/dashboard",
+      "headers": [
+        { "name": "Authorization", "value": "Bearer {{ _.access_token }}" }
+      ]
+    }
+  ]
+}

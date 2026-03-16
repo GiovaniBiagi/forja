@@ -1,5 +1,6 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { type AuthService, AuthError } from "@forja/auth";
+import { ZodError } from "zod";
 
 declare module "fastify" {
   interface FastifyRequest {
@@ -7,9 +8,13 @@ declare module "fastify" {
   }
 }
 
+/** Options for registering the auth Fastify plugin. */
 export interface AuthPluginOptions {
+  /** The auth service instance created via `createAuthService`. */
   service: AuthService;
+  /** Custom function to extract the tenant ID from a request. Defaults to `x-tenant-id` header or subdomain. */
   tenantResolver?: (req: FastifyRequest) => string;
+  /** Route prefix (e.g., "/auth"). */
   prefix?: string;
 }
 
@@ -25,6 +30,10 @@ function defaultTenantResolver(req: FastifyRequest): string {
   return tenantId;
 }
 
+/**
+ * Fastify plugin that registers auth routes: POST /register, /login, /refresh, GET /me.
+ * Handles AuthError and ZodError responses automatically.
+ */
 export async function authPlugin(
   fastify: FastifyInstance,
   options: AuthPluginOptions
@@ -32,12 +41,22 @@ export async function authPlugin(
   const { service, tenantResolver = defaultTenantResolver } = options;
   const { schemas } = service;
 
-  // Error handler for AuthError
+  // Error handler for AuthError and ZodError
   fastify.setErrorHandler((error, _request, reply) => {
     if (error instanceof AuthError) {
       return reply.status(error.statusCode).send({
         error: error.code,
         message: error.message,
+      });
+    }
+    if (error instanceof ZodError) {
+      return reply.status(400).send({
+        error: "VALIDATION_ERROR",
+        message: "Invalid input",
+        details: error.errors.map((e) => ({
+          field: e.path.join("."),
+          message: e.message,
+        })),
       });
     }
     throw error;
@@ -80,6 +99,11 @@ export async function authPlugin(
 
 // -- Middleware factories --
 
+/**
+ * Fastify preHandler that authenticates the request via Bearer token and populates `request.authUser`.
+ * @param service - The auth service instance.
+ * @returns Fastify preHandler function.
+ */
 export function authenticate(service: AuthService) {
   return async (request: FastifyRequest, reply: FastifyReply) => {
     try {
@@ -96,6 +120,12 @@ export function authenticate(service: AuthService) {
   };
 }
 
+/**
+ * Fastify preHandler that authenticates and checks if the user has one of the required roles.
+ * @param service - The auth service instance.
+ * @param roles - Allowed roles for this route.
+ * @returns Fastify preHandler function.
+ */
 export function requireRole(service: AuthService, ...roles: string[]) {
   const checkRole = service.authorize(...roles);
 

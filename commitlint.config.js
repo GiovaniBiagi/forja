@@ -4,7 +4,7 @@ export default {
     "scope-enum": [
       2,
       "always",
-      ["repo", "auth", "auth-fastify"],
+      ["repo", "auth", "auth-fastify", "auth-prisma", "example"],
     ],
   },
 };
