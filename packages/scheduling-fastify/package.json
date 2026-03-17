@@ -1,6 +1,6 @@
 {
   "name": "@forjakit/scheduling-fastify",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -16,7 +16,7 @@
     "dev": "tsup --watch"
   },
   "dependencies": {
-    "@forjakit/scheduling": "workspace:*",
+    "@forjakit/scheduling": "^0.1.0",
     "fastify": "^5.2.2",
     "zod": "^3.24.2"
   },

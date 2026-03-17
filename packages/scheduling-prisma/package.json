@@ -1,6 +1,6 @@
 {
   "name": "@forjakit/scheduling-prisma",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -16,7 +16,7 @@
     "dev": "tsup --watch"
   },
   "dependencies": {
-    "@forjakit/scheduling": "workspace:*"
+    "@forjakit/scheduling": "^0.1.0"
   },
   "devDependencies": {
     "tsup": "^8.4.0",

@@ -77,8 +77,8 @@ importers:
         specifier: ^11.0.0
         version: 11.0.2
       '@forjakit/auth':
-        specifier: workspace:*
-        version: link:../auth
+        specifier: ^0.1.0
+        version: 0.1.0
       fastify:
         specifier: ^5.2.2
         version: 5.8.2
@@ -96,8 +96,8 @@ importers:
   packages/auth-prisma:
     dependencies:
       '@forjakit/auth':
-        specifier: workspace:*
-        version: link:../auth
+        specifier: ^0.1.0
+        version: 0.1.0
     devDependencies:
       tsup:
         specifier: ^8.4.0
@@ -122,8 +122,8 @@ importers:
   packages/scheduling-fastify:
     dependencies:
       '@forjakit/scheduling':
-        specifier: workspace:*
-        version: link:../scheduling
+        specifier: ^0.1.0
+        version: 0.1.0
       fastify:
         specifier: ^5.2.2
         version: 5.8.2
@@ -141,8 +141,8 @@ importers:
   packages/scheduling-prisma:
     dependencies:
       '@forjakit/scheduling':
-        specifier: workspace:*
-        version: link:../scheduling
+        specifier: ^0.1.0
+        version: 0.1.0
     devDependencies:
       tsup:
         specifier: ^8.4.0
@@ -427,6 +427,12 @@ packages:
 
   '@fastify/proxy-addr@5.1.0':
     resolution: {integrity: sha512-INS+6gh91cLUjB+PVHfu1UqcB76Sqtpyp7bnL+FYojhjygvOPA9ctiD/JDKsyD9Xgu4hUhCSJBPig/w7duNajw==}
+
+  '@forjakit/auth@0.1.0':
+    resolution: {integrity: sha512-7PHe69fLgIpBdSRg0J87pWGegb3taorl4b/6QR1vCkauXQJA6PeIKEn+RR0h8sx8g8M4ATHBb1FDZRMGK2EU9A==}
+
+  '@forjakit/scheduling@0.1.0':
+    resolution: {integrity: sha512-s4828vgYjZNTfKbOh1qupjS5i0rAkh9ZngL9xpaYeQ93RYKZqH/S1oQ+msQLhL26PHtscRGj7klwGtetQE9KHw==}
 
   '@jridgewell/gen-mapping@0.3.13':
     resolution: {integrity: sha512-2kkt/7niJ6MgEPxF0bYdQ6etZaA+fQvDcLKckhy1yIQOzaoKjBBjSj63/aLVjYE3qhRt5dvM+uUyfCg6UKCBbA==}
@@ -1898,6 +1904,16 @@ snapshots:
     dependencies:
       '@fastify/forwarded': 3.0.1
       ipaddr.js: 2.3.0
+
+  '@forjakit/auth@0.1.0':
+    dependencies:
+      argon2: 0.41.1
+      jose: 6.2.1
+      zod: 3.25.76
+
+  '@forjakit/scheduling@0.1.0':
+    dependencies:
+      zod: 3.25.76
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
