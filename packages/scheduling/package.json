@@ -1,5 +1,5 @@
 {
-  "name": "@forja/scheduling",
+  "name": "@forjakit/scheduling",
   "version": "0.1.0",
   "type": "module",
   "main": "./dist/index.js",
@@ -21,5 +21,11 @@
   "devDependencies": {
     "tsup": "^8.4.0",
     "typescript": "^5.7.3"
-  }
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "dist"
+  ]
 }

@@ -23,13 +23,13 @@ importers:
 
   apps/example:
     dependencies:
-      '@forja/auth':
+      '@forjakit/auth':
         specifier: workspace:*
         version: link:../../packages/auth
-      '@forja/auth-fastify':
+      '@forjakit/auth-fastify':
         specifier: workspace:*
         version: link:../../packages/auth-fastify
-      '@forja/auth-prisma':
+      '@forjakit/auth-prisma':
         specifier: workspace:*
         version: link:../../packages/auth-prisma
       '@prisma/client':
@@ -76,7 +76,7 @@ importers:
       '@fastify/cookie':
         specifier: ^11.0.0
         version: 11.0.2
-      '@forja/auth':
+      '@forjakit/auth':
         specifier: workspace:*
         version: link:../auth
       fastify:
@@ -95,7 +95,7 @@ importers:
 
   packages/auth-prisma:
     dependencies:
-      '@forja/auth':
+      '@forjakit/auth':
         specifier: workspace:*
         version: link:../auth
     devDependencies:
@@ -121,7 +121,7 @@ importers:
 
   packages/scheduling-fastify:
     dependencies:
-      '@forja/scheduling':
+      '@forjakit/scheduling':
         specifier: workspace:*
         version: link:../scheduling
       fastify:
@@ -140,7 +140,7 @@ importers:
 
   packages/scheduling-prisma:
     dependencies:
-      '@forja/scheduling':
+      '@forjakit/scheduling':
         specifier: workspace:*
         version: link:../scheduling
     devDependencies:

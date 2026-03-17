@@ -2,7 +2,7 @@
 
 Modular business toolkit for building applications faster. "Forja" means "forge" in Portuguese -- the idea is to forge production-ready features from well-tested, reusable building blocks.
 
-All packages live under the `@forja/*` npm scope.
+All packages live under the `@forjakit/*` npm scope.
 
 ## Philosophy
 
@@ -17,11 +17,11 @@ All packages live under the `@forja/*` npm scope.
 ┌─────────────────────────────────────────────────────┐
 │                  Your Application                    │
 ├──────────────────────┬──────────────────────────────┤
-│   @forja/auth-fastify│  @forja/scheduling-fastify   │  ← HTTP adapters
+│   @forjakit/auth-fastify│  @forjakit/scheduling-fastify   │  ← HTTP adapters
 ├──────────────────────┼──────────────────────────────┤
-│   @forja/auth        │  @forja/scheduling           │  ← Framework-agnostic cores
+│   @forjakit/auth        │  @forjakit/scheduling           │  ← Framework-agnostic cores
 ├──────────────────────┼──────────────────────────────┤
-│   @forja/auth-prisma │  @forja/scheduling-prisma    │  ← Storage adapters
+│   @forjakit/auth-prisma │  @forjakit/scheduling-prisma    │  ← Storage adapters
 ├──────────────────────┴──────────────────────────────┤
 │                    Database                           │
 └─────────────────────────────────────────────────────┘
@@ -33,12 +33,12 @@ Cores define business logic and storage interfaces. HTTP adapters expose REST ro
 
 | Package | Description | Version |
 | ------- | ----------- | ------- |
-| [`@forja/auth`](./packages/auth) | Framework-agnostic auth service: registration, login, JWT tokens, roles, password reset, email verification | `0.1.0` |
-| [`@forja/auth-fastify`](./packages/auth-fastify) | Fastify plugin for `@forja/auth`: routes, middleware, cookie support, rate limiting | `0.1.0` |
-| [`@forja/auth-prisma`](./packages/auth-prisma) | Prisma storage adapters for `@forja/auth` | `0.1.0` |
-| [`@forja/scheduling`](./packages/scheduling) | Framework-agnostic scheduling engine: events, conflict detection, availability slots | `0.1.0` |
-| [`@forja/scheduling-fastify`](./packages/scheduling-fastify) | Fastify plugin for `@forja/scheduling`: CRUD routes, guards, tenant resolution | `0.1.0` |
-| [`@forja/scheduling-prisma`](./packages/scheduling-prisma) | Prisma storage adapters for `@forja/scheduling` | `0.1.0` |
+| [`@forjakit/auth`](./packages/auth) | Framework-agnostic auth service: registration, login, JWT tokens, roles, password reset, email verification | `0.1.0` |
+| [`@forjakit/auth-fastify`](./packages/auth-fastify) | Fastify plugin for `@forjakit/auth`: routes, middleware, cookie support, rate limiting | `0.1.0` |
+| [`@forjakit/auth-prisma`](./packages/auth-prisma) | Prisma storage adapters for `@forjakit/auth` | `0.1.0` |
+| [`@forjakit/scheduling`](./packages/scheduling) | Framework-agnostic scheduling engine: events, conflict detection, availability slots | `0.1.0` |
+| [`@forjakit/scheduling-fastify`](./packages/scheduling-fastify) | Fastify plugin for `@forjakit/scheduling`: CRUD routes, guards, tenant resolution | `0.1.0` |
+| [`@forjakit/scheduling-prisma`](./packages/scheduling-prisma) | Prisma storage adapters for `@forjakit/scheduling` | `0.1.0` |
 
 ## Quick Start
 
@@ -50,18 +50,18 @@ import { z } from "zod";
 import { PrismaClient } from "@prisma/client";
 
 // Auth
-import { createAuthService } from "@forja/auth";
-import { authPlugin, authenticate } from "@forja/auth-fastify";
+import { createAuthService } from "@forjakit/auth";
+import { authPlugin, authenticate } from "@forjakit/auth-fastify";
 import {
   createPrismaAuthStorage,
   createPrismaTokenBlacklist,
   createPrismaRefreshTokenStore,
-} from "@forja/auth-prisma";
+} from "@forjakit/auth-prisma";
 
 // Scheduling
-import { createSchedulingService } from "@forja/scheduling";
-import { schedulingPlugin } from "@forja/scheduling-fastify";
-import { createPrismaSchedulingStorage } from "@forja/scheduling-prisma";
+import { createSchedulingService } from "@forjakit/scheduling";
+import { schedulingPlugin } from "@forjakit/scheduling-fastify";
+import { createPrismaSchedulingStorage } from "@forjakit/scheduling-prisma";
 
 const prisma = new PrismaClient();
 const app = Fastify({ logger: true });
@@ -110,12 +110,12 @@ app.listen({ port: 3000 });
 ```
 forja/
 ├── packages/
-│   ├── auth/                 # @forja/auth
-│   ├── auth-fastify/         # @forja/auth-fastify
-│   ├── auth-prisma/          # @forja/auth-prisma
-│   ├── scheduling/           # @forja/scheduling
-│   ├── scheduling-fastify/   # @forja/scheduling-fastify
-│   └── scheduling-prisma/    # @forja/scheduling-prisma
+│   ├── auth/                 # @forjakit/auth
+│   ├── auth-fastify/         # @forjakit/auth-fastify
+│   ├── auth-prisma/          # @forjakit/auth-prisma
+│   ├── scheduling/           # @forjakit/scheduling
+│   ├── scheduling-fastify/   # @forjakit/scheduling-fastify
+│   └── scheduling-prisma/    # @forjakit/scheduling-prisma
 ├── apps/                     # Consumer applications
 ├── package.json
 ├── pnpm-workspace.yaml

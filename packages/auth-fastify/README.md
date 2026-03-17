@@ -1,21 +1,21 @@
-# @forja/auth-fastify
+# @forjakit/auth-fastify
 
-Fastify plugin that exposes `@forja/auth` as a REST API. Registers auth routes with tenant isolation, input validation, rate limiting, optional cookie-based token delivery, and structured error responses. Also provides standalone middleware factories for protecting routes in other plugins.
+Fastify plugin that exposes `@forjakit/auth` as a REST API. Registers auth routes with tenant isolation, input validation, rate limiting, optional cookie-based token delivery, and structured error responses. Also provides standalone middleware factories for protecting routes in other plugins.
 
 ## Installation
 
 ```bash
-pnpm add @forja/auth-fastify
+pnpm add @forjakit/auth-fastify
 ```
 
-Peer dependencies: `@forja/auth`, `fastify >= 5`, `zod >= 3.24`.
+Peer dependencies: `@forjakit/auth`, `fastify >= 5`, `zod >= 3.24`.
 
 ## Plugin Registration
 
 ```ts
 import Fastify from "fastify";
-import { authPlugin } from "@forja/auth-fastify";
-import { createAuthService } from "@forja/auth";
+import { authPlugin } from "@forjakit/auth-fastify";
+import { createAuthService } from "@forjakit/auth";
 
 const app = Fastify();
 
@@ -298,7 +298,7 @@ Standalone middleware factories for protecting routes in other plugins.
 Fastify preHandler that authenticates the request via Bearer token or cookie and populates `request.authUser`.
 
 ```ts
-import { authenticate } from "@forja/auth-fastify";
+import { authenticate } from "@forjakit/auth-fastify";
 
 app.get("/protected", { preHandler: authenticate(service) }, async (req) => {
   const user = req.authUser;
@@ -311,7 +311,7 @@ app.get("/protected", { preHandler: authenticate(service) }, async (req) => {
 Fastify preHandler that authenticates and checks if the user has one of the required roles.
 
 ```ts
-import { requireRole } from "@forja/auth-fastify";
+import { requireRole } from "@forjakit/auth-fastify";
 
 app.delete("/admin-only", { preHandler: requireRole(service, "admin") }, async (req) => {
   return { message: "Admin action performed" };
@@ -323,7 +323,7 @@ app.delete("/admin-only", { preHandler: requireRole(service, "admin") }, async (
 Creates middleware factories pre-configured with cookie support. Use this when cookie mode is enabled to avoid passing the cookie name to every middleware call.
 
 ```ts
-import { createCookieMiddleware } from "@forja/auth-fastify";
+import { createCookieMiddleware } from "@forjakit/auth-fastify";
 
 const { authenticate, requireRole } = createCookieMiddleware(service, "access_token");
 
@@ -369,7 +369,7 @@ app.register(authPlugin, {
 
 ## Rate Limiting
 
-The plugin accepts a `RateLimiter` interface (defined in `@forja/auth`). Rate limiting is applied to `register`, `login`, and `request-password-reset` routes.
+The plugin accepts a `RateLimiter` interface (defined in `@forjakit/auth`). Rate limiting is applied to `register`, `login`, and `request-password-reset` routes.
 
 ```ts
 app.register(authPlugin, {
@@ -446,7 +446,7 @@ app.register(authPlugin, {
 
 ```ts
 import Fastify from "fastify";
-import { createAuthService } from "@forja/auth";
+import { createAuthService } from "@forjakit/auth";
 import {
   createPrismaAuthStorage,
   createPrismaTokenBlacklist,
@@ -454,8 +454,8 @@ import {
   createPrismaPasswordResetStorage,
   createPrismaPasswordUpdateStorage,
   createPrismaEmailVerificationStorage,
-} from "@forja/auth-prisma";
-import { authPlugin, authenticate, requireRole } from "@forja/auth-fastify";
+} from "@forjakit/auth-prisma";
+import { authPlugin, authenticate, requireRole } from "@forjakit/auth-fastify";
 import { PrismaClient } from "@prisma/client";
 import { z } from "zod";
 
@@ -521,7 +521,7 @@ POST /auth/resend-verification
 ## Exports
 
 ```ts
-export { authPlugin } from "@forja/auth-fastify";
-export type { AuthPluginOptions, AuthCookieOptions } from "@forja/auth-fastify";
-export { authenticate, requireRole, createCookieMiddleware } from "@forja/auth-fastify";
+export { authPlugin } from "@forjakit/auth-fastify";
+export type { AuthPluginOptions, AuthCookieOptions } from "@forjakit/auth-fastify";
+export { authenticate, requireRole, createCookieMiddleware } from "@forjakit/auth-fastify";
 ```

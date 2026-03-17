@@ -8,8 +8,8 @@ import type {
   EventStatus,
   Participant,
   AvailabilityWindow,
-} from "@forja/scheduling";
-import { computeEndTime } from "@forja/scheduling";
+} from "@forjakit/scheduling";
+import { computeEndTime } from "@forjakit/scheduling";
 
 // ── Duck-typed Prisma delegate interfaces ─────────────────────────────────────
 

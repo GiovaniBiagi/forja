@@ -1,5 +1,5 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import { type AuthService, type RateLimiter, AuthError, Errors } from "@forja/auth";
+import { type AuthService, type RateLimiter, AuthError, Errors } from "@forjakit/auth";
 import { ZodError } from "zod";
 
 declare module "fastify" {

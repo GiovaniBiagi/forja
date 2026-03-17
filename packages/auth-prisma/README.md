@@ -1,14 +1,14 @@
-# @forja/auth-prisma
+# @forjakit/auth-prisma
 
-Prisma storage adapters for `@forja/auth`. Implements all storage interfaces (`AuthStorage`, `TokenBlacklist`, `RefreshTokenStore`, `PasswordResetStorage`, `PasswordUpdateStorage`, `EmailVerificationStorage`) using Prisma model delegates, so you can plug a Prisma-backed database into the auth service with zero custom SQL.
+Prisma storage adapters for `@forjakit/auth`. Implements all storage interfaces (`AuthStorage`, `TokenBlacklist`, `RefreshTokenStore`, `PasswordResetStorage`, `PasswordUpdateStorage`, `EmailVerificationStorage`) using Prisma model delegates, so you can plug a Prisma-backed database into the auth service with zero custom SQL.
 
 ## Installation
 
 ```bash
-pnpm add @forja/auth-prisma
+pnpm add @forjakit/auth-prisma
 ```
 
-Peer dependencies: `@forja/auth`.
+Peer dependencies: `@forjakit/auth`.
 
 ## Required Prisma Schema
 
@@ -81,7 +81,7 @@ You only need the models for the features you use. If you only use basic auth (n
 ### AuthStorage (user persistence)
 
 ```ts
-import { createPrismaAuthStorage } from "@forja/auth-prisma";
+import { createPrismaAuthStorage } from "@forjakit/auth-prisma";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -94,7 +94,7 @@ Methods implemented: `findUserByEmail`, `createUser`, `findUserById`.
 ### TokenBlacklist (logout)
 
 ```ts
-import { createPrismaTokenBlacklist } from "@forja/auth-prisma";
+import { createPrismaTokenBlacklist } from "@forjakit/auth-prisma";
 
 const tokenBlacklist = createPrismaTokenBlacklist(prisma.tokenBlacklist);
 ```
@@ -104,7 +104,7 @@ Methods implemented: `add`, `isBlacklisted`.
 ### RefreshTokenStore (token rotation)
 
 ```ts
-import { createPrismaRefreshTokenStore } from "@forja/auth-prisma";
+import { createPrismaRefreshTokenStore } from "@forjakit/auth-prisma";
 
 const refreshTokenStore = createPrismaRefreshTokenStore(prisma.refreshToken);
 ```
@@ -116,7 +116,7 @@ The `revokeFamily` method uses `updateMany` to revoke all tokens in a family at 
 ### PasswordResetStorage (password reset tokens)
 
 ```ts
-import { createPrismaPasswordResetStorage } from "@forja/auth-prisma";
+import { createPrismaPasswordResetStorage } from "@forjakit/auth-prisma";
 
 const passwordResetStorage = createPrismaPasswordResetStorage(prisma.passwordResetToken);
 ```
@@ -126,7 +126,7 @@ Methods implemented: `createResetToken`, `findResetToken`, `markResetTokenUsed`.
 ### PasswordUpdateStorage (updating user passwords)
 
 ```ts
-import { createPrismaPasswordUpdateStorage } from "@forja/auth-prisma";
+import { createPrismaPasswordUpdateStorage } from "@forjakit/auth-prisma";
 
 const passwordUpdateStorage = createPrismaPasswordUpdateStorage(prisma.user);
 ```
@@ -138,7 +138,7 @@ This adapter reuses the same Prisma user delegate as `createPrismaAuthStorage`. 
 ### EmailVerificationStorage (email verification)
 
 ```ts
-import { createPrismaEmailVerificationStorage } from "@forja/auth-prisma";
+import { createPrismaEmailVerificationStorage } from "@forjakit/auth-prisma";
 
 const emailVerificationStorage = createPrismaEmailVerificationStorage(
   prisma.emailVerificationToken,
@@ -197,7 +197,7 @@ Used by `createPrismaTokenBlacklist`, `createPrismaRefreshTokenStore`, `createPr
 ## Full Integration Example
 
 ```ts
-import { createAuthService } from "@forja/auth";
+import { createAuthService } from "@forjakit/auth";
 import {
   createPrismaAuthStorage,
   createPrismaTokenBlacklist,
@@ -205,7 +205,7 @@ import {
   createPrismaPasswordResetStorage,
   createPrismaPasswordUpdateStorage,
   createPrismaEmailVerificationStorage,
-} from "@forja/auth-prisma";
+} from "@forjakit/auth-prisma";
 import { PrismaClient } from "@prisma/client";
 import { z } from "zod";
 
@@ -257,10 +257,10 @@ export {
   createPrismaPasswordResetStorage,
   createPrismaPasswordUpdateStorage,
   createPrismaEmailVerificationStorage,
-} from "@forja/auth-prisma";
+} from "@forjakit/auth-prisma";
 
 export type {
   PrismaUserDelegate,
   PrismaTokenDelegate,
-} from "@forja/auth-prisma";
+} from "@forjakit/auth-prisma";
 ```

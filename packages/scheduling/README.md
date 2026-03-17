@@ -1,4 +1,4 @@
-# @forja/scheduling
+# @forjakit/scheduling
 
 Framework-agnostic scheduling engine for any domain that needs time-based event management. Handles sports matches, service appointments, room bookings, and anything else that involves scheduling participants at specific times.
 
@@ -7,7 +7,7 @@ The core package contains zero framework or database dependencies. It defines th
 ## Installation
 
 ```bash
-pnpm add @forja/scheduling
+pnpm add @forjakit/scheduling
 ```
 
 Peer dependency: `zod >= 3.24`.
@@ -78,7 +78,7 @@ const appointmentMeta = z.object({
 ## Creating a Service
 
 ```ts
-import { createSchedulingService } from "@forja/scheduling";
+import { createSchedulingService } from "@forjakit/scheduling";
 import { z } from "zod";
 
 const metadataSchema = z.object({
@@ -111,7 +111,7 @@ const service = createSchedulingService({
 `createSchedulingSchemas()` produces Zod schemas composed with your metadata schema. The service creates these internally, but you can also use them standalone for validation.
 
 ```ts
-import { createSchedulingSchemas } from "@forja/scheduling";
+import { createSchedulingSchemas } from "@forjakit/scheduling";
 import { z } from "zod";
 
 // Sports match schemas
@@ -297,7 +297,7 @@ All events start as `SCHEDULED`. Terminal states (`FINISHED`, `CANCELLED`) canno
 ### Utility Functions
 
 ```ts
-import { assertValidTransition, getAllowedTransitions } from "@forja/scheduling";
+import { assertValidTransition, getAllowedTransitions } from "@forjakit/scheduling";
 
 getAllowedTransitions("SCHEDULED"); // ["IN_PROGRESS", "CANCELLED"]
 getAllowedTransitions("FINISHED");  // []
@@ -332,7 +332,7 @@ const service = createSchedulingService({
 ### Utility Functions
 
 ```ts
-import { computeEndTime, assertNoConflicts } from "@forja/scheduling";
+import { computeEndTime, assertNoConflicts } from "@forjakit/scheduling";
 
 const end = computeEndTime(new Date("2026-04-01T14:00:00Z"), 90);
 // 2026-04-01T15:30:00.000Z
@@ -393,7 +393,7 @@ const slots = await service.getAvailableSlots("barber-1", "tenant-1", new Date("
 All business errors are thrown as `SchedulingError` instances with a machine-readable `code` and an HTTP-friendly `statusCode`.
 
 ```ts
-import { SchedulingError } from "@forja/scheduling";
+import { SchedulingError } from "@forjakit/scheduling";
 
 try {
   await service.scheduleEvent(input);
@@ -421,7 +421,7 @@ try {
 The `Errors` object provides factory functions for creating errors programmatically:
 
 ```ts
-import { Errors } from "@forja/scheduling";
+import { Errors } from "@forjakit/scheduling";
 
 Errors.eventNotFound("evt-123");
 Errors.eventNotModifiable("FINISHED");
@@ -479,12 +479,12 @@ interface AvailabilityStorage {
 }
 ```
 
-Or use `@forja/scheduling-prisma` for a ready-made Prisma implementation.
+Or use `@forjakit/scheduling-prisma` for a ready-made Prisma implementation.
 
 ## Full Working Example
 
 ```ts
-import { createSchedulingService, type SchedulingStorage } from "@forja/scheduling";
+import { createSchedulingService, type SchedulingStorage } from "@forjakit/scheduling";
 import { z } from "zod";
 
 // 1. Define your metadata schema
@@ -495,7 +495,7 @@ const matchMetadata = z.object({
 
 type MatchMeta = z.infer<typeof matchMetadata>;
 
-// 2. Implement storage (or use @forja/scheduling-prisma)
+// 2. Implement storage (or use @forjakit/scheduling-prisma)
 const storage: SchedulingStorage<MatchMeta> = {
   // ... your implementation
 };
@@ -537,21 +537,21 @@ const upcoming = await scheduling.listEvents({
 
 ```ts
 // Service
-export { createSchedulingService } from "@forja/scheduling";
-export type { SchedulingService, SchedulingServiceConfig } from "@forja/scheduling";
+export { createSchedulingService } from "@forjakit/scheduling";
+export type { SchedulingService, SchedulingServiceConfig } from "@forjakit/scheduling";
 
 // Schemas
-export { createSchedulingSchemas, EventStatusSchema } from "@forja/scheduling";
-export type { SchedulingSchemas } from "@forja/scheduling";
+export { createSchedulingSchemas, EventStatusSchema } from "@forjakit/scheduling";
+export type { SchedulingSchemas } from "@forjakit/scheduling";
 
 // Transitions
-export { assertValidTransition, getAllowedTransitions } from "@forja/scheduling";
+export { assertValidTransition, getAllowedTransitions } from "@forjakit/scheduling";
 
 // Conflicts
-export { assertNoConflicts, computeEndTime } from "@forja/scheduling";
+export { assertNoConflicts, computeEndTime } from "@forjakit/scheduling";
 
 // Errors
-export { SchedulingError, Errors } from "@forja/scheduling";
+export { SchedulingError, Errors } from "@forjakit/scheduling";
 
 // Types
 export type {
@@ -559,5 +559,5 @@ export type {
   AvailabilityWindow, TimeSlot,
   CreateEventInput, UpdateEventInput, EventFilters,
   SchedulingStorage, AvailabilityStorage,
-} from "@forja/scheduling";
+} from "@forjakit/scheduling";
 ```

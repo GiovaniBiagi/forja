@@ -13,7 +13,7 @@ All commits MUST follow the [Conventional Commits](https://www.conventionalcommi
 ```
 
 **Types:** `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`, `perf`, `ci`, `build`
-**Scopes:** package name without `@forja/` prefix (e.g., `auth`, `auth-fastify`, `scheduling`) or `repo` for root-level changes.
+**Scopes:** package name without `@forjakit/` prefix (e.g., `auth`, `auth-fastify`, `scheduling`) or `repo` for root-level changes.
 
 Examples:
 - `feat(auth): add password reset flow`
@@ -64,7 +64,7 @@ Breaking changes must include `BREAKING CHANGE:` in the footer or `!` after the 
 
 ## Package Architecture
 
-- **Framework-agnostic core:** business logic packages (e.g., `@forja/auth`) must have zero framework dependencies. Pure functions and interfaces only.
-- **Adapter pattern:** framework integrations live in separate packages (e.g., `@forja/auth-fastify`) that depend on the core.
+- **Framework-agnostic core:** business logic packages (e.g., `@forjakit/auth`) must have zero framework dependencies. Pure functions and interfaces only.
+- **Adapter pattern:** framework integrations live in separate packages (e.g., `@forjakit/auth-fastify`) that depend on the core.
 - **Storage interface:** database access is abstracted behind interfaces. Consumers provide their own implementation.
 - **Extensibility:** use Zod schema composition to allow consumers to extend base schemas with custom fields.

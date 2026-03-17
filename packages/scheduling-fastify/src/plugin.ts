@@ -1,5 +1,5 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import { type SchedulingService, SchedulingError } from "@forja/scheduling";
+import { type SchedulingService, SchedulingError } from "@forjakit/scheduling";
 import { ZodError, type ZodTypeAny } from "zod";
 
 /** Options for registering the scheduling Fastify plugin. */

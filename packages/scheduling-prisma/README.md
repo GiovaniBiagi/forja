@@ -1,14 +1,14 @@
-# @forja/scheduling-prisma
+# @forjakit/scheduling-prisma
 
-Prisma storage adapter for `@forja/scheduling`. Implements `SchedulingStorage` and `AvailabilityStorage` interfaces using Prisma model delegates, so you can plug a Prisma-backed database into the scheduling service with zero custom SQL.
+Prisma storage adapter for `@forjakit/scheduling`. Implements `SchedulingStorage` and `AvailabilityStorage` interfaces using Prisma model delegates, so you can plug a Prisma-backed database into the scheduling service with zero custom SQL.
 
 ## Installation
 
 ```bash
-pnpm add @forja/scheduling-prisma
+pnpm add @forjakit/scheduling-prisma
 ```
 
-Peer dependencies: `@forja/scheduling`.
+Peer dependencies: `@forjakit/scheduling`.
 
 ## Required Prisma Schema
 
@@ -54,7 +54,7 @@ model AvailabilityWindow {
 ### Event Storage
 
 ```ts
-import { createPrismaSchedulingStorage } from "@forja/scheduling-prisma";
+import { createPrismaSchedulingStorage } from "@forjakit/scheduling-prisma";
 import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
@@ -65,7 +65,7 @@ const storage = createPrismaSchedulingStorage(prisma.scheduledEvent);
 ### Availability Storage
 
 ```ts
-import { createPrismaAvailabilityStorage } from "@forja/scheduling-prisma";
+import { createPrismaAvailabilityStorage } from "@forjakit/scheduling-prisma";
 
 const availabilityStorage = createPrismaAvailabilityStorage(prisma.availabilityWindow);
 ```
@@ -161,11 +161,11 @@ The `listEvents` method applies most filters in SQL, but `participantId` is filt
 ## Full Integration Example
 
 ```ts
-import { createSchedulingService } from "@forja/scheduling";
+import { createSchedulingService } from "@forjakit/scheduling";
 import {
   createPrismaSchedulingStorage,
   createPrismaAvailabilityStorage,
-} from "@forja/scheduling-prisma";
+} from "@forjakit/scheduling-prisma";
 import { PrismaClient } from "@prisma/client";
 import { z } from "zod";
 
@@ -212,10 +212,10 @@ const match = await scheduling.scheduleEvent({
 export {
   createPrismaSchedulingStorage,
   createPrismaAvailabilityStorage,
-} from "@forja/scheduling-prisma";
+} from "@forjakit/scheduling-prisma";
 
 export type {
   PrismaScheduledEventDelegate,
   PrismaAvailabilityDelegate,
-} from "@forja/scheduling-prisma";
+} from "@forjakit/scheduling-prisma";
 ```

@@ -1,21 +1,21 @@
-# @forja/scheduling-fastify
+# @forjakit/scheduling-fastify
 
-Fastify plugin that exposes `@forja/scheduling` as a REST API. Registers CRUD routes for scheduled events with tenant isolation, input validation, auth guard hooks, and structured error responses.
+Fastify plugin that exposes `@forjakit/scheduling` as a REST API. Registers CRUD routes for scheduled events with tenant isolation, input validation, auth guard hooks, and structured error responses.
 
 ## Installation
 
 ```bash
-pnpm add @forja/scheduling-fastify
+pnpm add @forjakit/scheduling-fastify
 ```
 
-Peer dependencies: `@forja/scheduling`, `fastify >= 5`, `zod >= 3.24`.
+Peer dependencies: `@forjakit/scheduling`, `fastify >= 5`, `zod >= 3.24`.
 
 ## Plugin Registration
 
 ```ts
 import Fastify from "fastify";
-import { schedulingPlugin } from "@forja/scheduling-fastify";
-import { createSchedulingService } from "@forja/scheduling";
+import { schedulingPlugin } from "@forjakit/scheduling-fastify";
+import { createSchedulingService } from "@forjakit/scheduling";
 
 const app = Fastify();
 
@@ -287,9 +287,9 @@ Any error that is not a `SchedulingError` or `ZodError` is re-thrown to Fastify'
 
 ```ts
 import Fastify from "fastify";
-import { createSchedulingService } from "@forja/scheduling";
-import { createPrismaSchedulingStorage } from "@forja/scheduling-prisma";
-import { schedulingPlugin } from "@forja/scheduling-fastify";
+import { createSchedulingService } from "@forjakit/scheduling";
+import { createPrismaSchedulingStorage } from "@forjakit/scheduling-prisma";
+import { schedulingPlugin } from "@forjakit/scheduling-fastify";
 import { PrismaClient } from "@prisma/client";
 import { z } from "zod";
 
@@ -341,6 +341,6 @@ POST   /api/scheduling/events/:id/cancel
 ## Exports
 
 ```ts
-export { schedulingPlugin } from "@forja/scheduling-fastify";
-export type { SchedulingPluginOptions } from "@forja/scheduling-fastify";
+export { schedulingPlugin } from "@forjakit/scheduling-fastify";
+export type { SchedulingPluginOptions } from "@forjakit/scheduling-fastify";
 ```

@@ -1,11 +1,11 @@
-# @forja/auth
+# @forjakit/auth
 
 Framework-agnostic authentication service for any application that needs user registration, login, JWT tokens, role-based authorization, password reset, and email verification. The core package contains zero framework or database dependencies -- it defines the business logic, validation schemas, token management, and security utilities. Storage and HTTP are handled by companion adapter packages.
 
 ## Installation
 
 ```bash
-pnpm add @forja/auth
+pnpm add @forjakit/auth
 ```
 
 Peer dependency: `zod >= 3.24`.
@@ -40,12 +40,12 @@ Both tokens are signed with HS256 and include `iss` (issuer), `aud` (audience), 
 
 ### Storage Interfaces
 
-The service does not access a database directly. Instead, you provide implementations of storage interfaces (or use `@forja/auth-prisma`). All interfaces are opt-in -- you only implement what you need.
+The service does not access a database directly. Instead, you provide implementations of storage interfaces (or use `@forjakit/auth-prisma`). All interfaces are opt-in -- you only implement what you need.
 
 ## Creating a Service
 
 ```ts
-import { createAuthService } from "@forja/auth";
+import { createAuthService } from "@forjakit/auth";
 import { z } from "zod";
 
 const roles = z.enum(["admin", "professional", "client"]);
@@ -246,7 +246,7 @@ The service exposes the composed Zod schemas via `service.schemas` for external 
 `createAuthSchemas()` produces Zod schemas composed with your role enum. The service creates these internally, but you can also use them standalone.
 
 ```ts
-import { createAuthSchemas } from "@forja/auth";
+import { createAuthSchemas } from "@forjakit/auth";
 import { z } from "zod";
 
 const roles = z.enum(["admin", "client"]);
@@ -286,7 +286,7 @@ Applied to `RegisterInput.password` and `ResetPasswordInput.password`.
 Passwords are hashed using argon2. The `hashPassword` and `verifyPassword` functions are exported for standalone use.
 
 ```ts
-import { hashPassword, verifyPassword } from "@forja/auth";
+import { hashPassword, verifyPassword } from "@forjakit/auth";
 
 const hash = await hashPassword("Str0ng!Pass");
 const valid = await verifyPassword(hash, "Str0ng!Pass"); // true
@@ -297,7 +297,7 @@ const valid = await verifyPassword(hash, "Str0ng!Pass"); // true
 For password reset and email verification, the service uses opaque tokens (random hex strings) that are SHA-256 hashed before storage. Only the hash is persisted; the raw token is sent to the user.
 
 ```ts
-import { generateOpaqueToken, hashToken } from "@forja/auth";
+import { generateOpaqueToken, hashToken } from "@forjakit/auth";
 
 const raw = generateOpaqueToken();    // 64-char hex string (32 random bytes)
 const hashed = hashToken(raw);        // SHA-256 hex digest
@@ -308,7 +308,7 @@ const hashed = hashToken(raw);        // SHA-256 hex digest
 All business errors are thrown as `AuthError` instances with a machine-readable `code` and an HTTP-friendly `statusCode`.
 
 ```ts
-import { AuthError } from "@forja/auth";
+import { AuthError } from "@forjakit/auth";
 
 try {
   await service.login({ email: "user@example.com", password: "wrong", tenantId: "t1" });
@@ -346,7 +346,7 @@ try {
 The `Errors` object provides factory functions for creating errors programmatically:
 
 ```ts
-import { Errors } from "@forja/auth";
+import { Errors } from "@forjakit/auth";
 
 Errors.emailAlreadyExists();
 Errors.invalidCredentials();
@@ -489,13 +489,13 @@ interface RateLimitResult {
 ## Full Working Example
 
 ```ts
-import { createAuthService, type AuthStorage, type TokenBlacklist } from "@forja/auth";
+import { createAuthService, type AuthStorage, type TokenBlacklist } from "@forjakit/auth";
 import { z } from "zod";
 
 // 1. Define your roles
 const roles = z.enum(["admin", "professional", "client"]);
 
-// 2. Implement storage (or use @forja/auth-prisma)
+// 2. Implement storage (or use @forjakit/auth-prisma)
 const storage: AuthStorage = {
   // ... your implementation
 };
@@ -542,28 +542,28 @@ await auth.logout(accessToken);
 
 ```ts
 // Service
-export { createAuthService } from "@forja/auth";
-export type { AuthService, AuthServiceConfig } from "@forja/auth";
+export { createAuthService } from "@forjakit/auth";
+export type { AuthService, AuthServiceConfig } from "@forjakit/auth";
 
 // Schemas
-export { createAuthSchemas } from "@forja/auth";
-export type { AuthSchemas } from "@forja/auth";
+export { createAuthSchemas } from "@forjakit/auth";
+export type { AuthSchemas } from "@forjakit/auth";
 
 // Password
-export { hashPassword, verifyPassword } from "@forja/auth";
+export { hashPassword, verifyPassword } from "@forjakit/auth";
 
 // Crypto
-export { generateOpaqueToken, hashToken } from "@forja/auth";
+export { generateOpaqueToken, hashToken } from "@forjakit/auth";
 
 // Tokens
 export {
   generateAccessToken, generateRefreshToken, generateTokenPair,
   verifyAccessToken, verifyRefreshToken, TOKEN_AUDIENCE,
-} from "@forja/auth";
-export type { TokenConfig, TokenPayload } from "@forja/auth";
+} from "@forjakit/auth";
+export type { TokenConfig, TokenPayload } from "@forjakit/auth";
 
 // Errors
-export { AuthError, Errors } from "@forja/auth";
+export { AuthError, Errors } from "@forjakit/auth";
 
 // Types
 export type {
@@ -571,5 +571,5 @@ export type {
   TokenBlacklist, RefreshTokenStore,
   PasswordResetStorage, PasswordUpdateStorage, EmailVerificationStorage,
   RateLimiter, RateLimitResult,
-} from "@forja/auth";
+} from "@forjakit/auth";
 ```

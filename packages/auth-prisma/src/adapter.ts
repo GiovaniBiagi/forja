@@ -8,7 +8,7 @@ import type {
   PasswordResetStorage,
   PasswordUpdateStorage,
   EmailVerificationStorage,
-} from "@forja/auth";
+} from "@forjakit/auth";
 
 /**
  * Minimum required shape of the Prisma user delegate.
