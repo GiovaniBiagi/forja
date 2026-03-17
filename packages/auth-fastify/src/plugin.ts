@@ -8,6 +8,24 @@ declare module "fastify" {
   }
 }
 
+/** Cookie configuration for secure token delivery. */
+export interface AuthCookieOptions {
+  /** Enable cookie-based token delivery. When true, tokens are set as HttpOnly cookies instead of returned in the response body. */
+  enabled: boolean;
+  /** Whether to set the Secure flag (HTTPS only). Defaults to `true` in production. */
+  secure?: boolean;
+  /** SameSite attribute for cookies. Defaults to `"lax"`. */
+  sameSite?: "strict" | "lax" | "none";
+  /** Cookie domain. Defaults to the request hostname. */
+  domain?: string;
+  /** Cookie path. Defaults to `"/"`. */
+  path?: string;
+  /** Name for the access token cookie. Defaults to `"access_token"`. */
+  accessTokenName?: string;
+  /** Name for the refresh token cookie. Defaults to `"refresh_token"`. */
+  refreshTokenName?: string;
+}
+
 /** Options for registering the auth Fastify plugin. */
 export interface AuthPluginOptions {
   /** The auth service instance created via `createAuthService`. */
@@ -24,6 +42,8 @@ export interface AuthPluginOptions {
   onPasswordResetToken?: (token: string, user: { email: string; tenantId: string }) => Promise<void>;
   /** Optional callback invoked with the raw verification token and user info. Use this to send the verification email. */
   onVerificationToken?: (token: string, user: { email: string; tenantId: string }) => Promise<void>;
+  /** Optional cookie configuration. When enabled, tokens are delivered via HttpOnly cookies instead of the response body. */
+  cookie?: AuthCookieOptions;
 }
 
 function defaultTenantResolver(req: FastifyRequest): string {
@@ -43,8 +63,97 @@ function defaultRateLimitKeyResolver(req: FastifyRequest): string {
 }
 
 /**
+ * Sets access and refresh token cookies on the reply.
+ * @param reply - Fastify reply object.
+ * @param tokens - Object containing accessToken and refreshToken strings.
+ * @param cookieOpts - Resolved cookie options.
+ */
+function setTokenCookies(
+  reply: FastifyReply,
+  tokens: { accessToken: string; refreshToken: string },
+  cookieOpts: Required<Pick<AuthCookieOptions, "secure" | "sameSite" | "path" | "accessTokenName" | "refreshTokenName">> & Pick<AuthCookieOptions, "domain">
+) {
+  const baseOpts = {
+    httpOnly: true,
+    secure: cookieOpts.secure,
+    sameSite: cookieOpts.sameSite,
+    path: cookieOpts.path,
+    ...(cookieOpts.domain ? { domain: cookieOpts.domain } : {}),
+  };
+
+  reply.setCookie(cookieOpts.accessTokenName, tokens.accessToken, {
+    ...baseOpts,
+    maxAge: 15 * 60, // 15 minutes — matches default access token expiry
+  });
+
+  reply.setCookie(cookieOpts.refreshTokenName, tokens.refreshToken, {
+    ...baseOpts,
+    maxAge: 7 * 24 * 60 * 60, // 7 days — matches default refresh token expiry
+  });
+}
+
+/**
+ * Clears token cookies from the reply.
+ * @param reply - Fastify reply object.
+ * @param cookieOpts - Resolved cookie options.
+ */
+function clearTokenCookies(
+  reply: FastifyReply,
+  cookieOpts: Required<Pick<AuthCookieOptions, "path" | "accessTokenName" | "refreshTokenName">> & Pick<AuthCookieOptions, "domain">
+) {
+  const clearOpts = {
+    httpOnly: true,
+    path: cookieOpts.path,
+    ...(cookieOpts.domain ? { domain: cookieOpts.domain } : {}),
+    maxAge: 0,
+  };
+
+  reply.setCookie(cookieOpts.accessTokenName, "", clearOpts);
+  reply.setCookie(cookieOpts.refreshTokenName, "", clearOpts);
+}
+
+/**
+ * Extracts the access token from the request. Checks cookies first (if cookie mode is enabled), then falls back to the Authorization header.
+ * @param request - Fastify request object.
+ * @param accessTokenName - Cookie name for the access token (undefined if cookie mode is disabled).
+ * @returns The raw JWT access token string.
+ * @throws AuthError if no token is found.
+ */
+function extractToken(request: FastifyRequest, accessTokenName?: string): string {
+  // Try cookie first
+  if (accessTokenName) {
+    const cookieToken = (request.cookies as Record<string, string | undefined>)?.[accessTokenName];
+    if (cookieToken) return cookieToken;
+  }
+
+  // Fallback to Authorization header
+  const header = request.headers.authorization;
+  if (header?.startsWith("Bearer ")) {
+    return header.slice(7);
+  }
+
+  throw new AuthError("Missing or invalid authorization header", "INVALID_TOKEN", 401);
+}
+
+/**
+ * Extracts the refresh token from the request. Checks cookies first (if cookie mode is enabled), then falls back to the request body.
+ * @param request - Fastify request object.
+ * @param refreshTokenName - Cookie name for the refresh token (undefined if cookie mode is disabled).
+ * @returns The raw JWT refresh token string, or undefined if not found in cookies.
+ */
+function extractRefreshToken(request: FastifyRequest, refreshTokenName?: string): string | undefined {
+  if (refreshTokenName) {
+    return (request.cookies as Record<string, string | undefined>)?.[refreshTokenName];
+  }
+  return undefined;
+}
+
+/**
  * Fastify plugin that registers auth routes and handles AuthError/ZodError responses.
  * Routes: POST /register, /login, /refresh, /logout, /request-password-reset, /reset-password, /verify-email, /resend-verification. GET /me.
+ *
+ * @param fastify - Fastify instance.
+ * @param options - Plugin options including auth service, tenant resolver, and optional cookie configuration.
  */
 export async function authPlugin(
   fastify: FastifyInstance,
@@ -57,8 +166,27 @@ export async function authPlugin(
     rateLimitKeyResolver = defaultRateLimitKeyResolver,
     onPasswordResetToken,
     onVerificationToken,
+    cookie,
   } = options;
   const { schemas } = service;
+
+  // Resolve cookie options
+  const cookieEnabled = cookie?.enabled ?? false;
+  const cookieOpts = cookieEnabled
+    ? {
+        secure: cookie!.secure ?? process.env.NODE_ENV === "production",
+        sameSite: cookie!.sameSite ?? ("lax" as const),
+        domain: cookie!.domain,
+        path: cookie!.path ?? "/",
+        accessTokenName: cookie!.accessTokenName ?? "access_token",
+        refreshTokenName: cookie!.refreshTokenName ?? "refresh_token",
+      }
+    : undefined;
+
+  // Register @fastify/cookie if cookie mode is enabled
+  if (cookieEnabled) {
+    await fastify.register(import("@fastify/cookie"));
+  }
 
   // Rate limit preHandler factory
   function rateLimit(action: string) {
@@ -81,6 +209,9 @@ export async function authPlugin(
       const response: Record<string, unknown> = { error: error.code, message: error.message };
       if (error.statusCode === 429) {
         reply.header("Retry-After", reply.getHeader("Retry-After") ?? "60");
+      }
+      if (cookieEnabled && error.statusCode === 401) {
+        clearTokenCookies(reply, cookieOpts!);
       }
       return reply.status(error.statusCode).send(response);
     }
@@ -108,6 +239,12 @@ export async function authPlugin(
       await onVerificationToken(result.verificationToken, { email: result.user.email, tenantId });
     }
 
+    if (cookieEnabled && cookieOpts) {
+      setTokenCookies(reply, result, cookieOpts);
+      const { accessToken: _, refreshToken: __, ...rest } = result;
+      return reply.status(201).send(rest);
+    }
+
     return reply.status(201).send(result);
   });
 
@@ -118,20 +255,45 @@ export async function authPlugin(
     const body = request.body as Record<string, unknown>;
     const result = await service.login({ ...body, tenantId } as { email: string; password: string; tenantId: string });
 
+    if (cookieEnabled && cookieOpts) {
+      setTokenCookies(reply, result, cookieOpts);
+      const { accessToken: _, refreshToken: __, ...rest } = result;
+      return reply.status(200).send(rest);
+    }
+
     return reply.status(200).send(result);
   });
 
   // POST /refresh
   fastify.post("/refresh", async (request: FastifyRequest, reply: FastifyReply) => {
-    const { refreshToken } = schemas.RefreshInput.parse(request.body);
+    let refreshToken: string;
+
+    if (cookieEnabled && cookieOpts) {
+      const cookieRefresh = extractRefreshToken(request, cookieOpts.refreshTokenName);
+      if (cookieRefresh) {
+        refreshToken = cookieRefresh;
+      } else {
+        const parsed = schemas.RefreshInput.parse(request.body);
+        refreshToken = parsed.refreshToken;
+      }
+    } else {
+      const parsed = schemas.RefreshInput.parse(request.body);
+      refreshToken = parsed.refreshToken;
+    }
+
     const result = await service.refresh(refreshToken);
+
+    if (cookieEnabled && cookieOpts) {
+      setTokenCookies(reply, result, cookieOpts);
+      return reply.status(200).send({ message: "Tokens refreshed" });
+    }
 
     return reply.status(200).send(result);
   });
 
   // GET /me
   fastify.get("/me", async (request: FastifyRequest, reply: FastifyReply) => {
-    const token = extractBearerToken(request);
+    const token = extractToken(request, cookieOpts?.accessTokenName);
     const user = await service.authenticate(token);
 
     return reply.status(200).send(user);
@@ -139,8 +301,12 @@ export async function authPlugin(
 
   // POST /logout
   fastify.post("/logout", async (request: FastifyRequest, reply: FastifyReply) => {
-    const token = extractBearerToken(request);
+    const token = extractToken(request, cookieOpts?.accessTokenName);
     await service.logout(token);
+
+    if (cookieEnabled && cookieOpts) {
+      clearTokenCookies(reply, cookieOpts);
+    }
 
     return reply.status(204).send();
   });
@@ -203,14 +369,15 @@ export async function authPlugin(
 // -- Middleware factories --
 
 /**
- * Fastify preHandler that authenticates the request via Bearer token and populates `request.authUser`.
+ * Fastify preHandler that authenticates the request via Bearer token or cookie and populates `request.authUser`.
  * @param service - The auth service instance.
+ * @param cookieAccessTokenName - Optional cookie name for the access token. When provided, checks cookies before the Authorization header.
  * @returns Fastify preHandler function.
  */
-export function authenticate(service: AuthService) {
+export function authenticate(service: AuthService, cookieAccessTokenName?: string) {
   return async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-      const token = extractBearerToken(request);
+      const token = extractToken(request, cookieAccessTokenName);
       request.authUser = await service.authenticate(token);
     } catch (error) {
       if (error instanceof AuthError) {
@@ -226,7 +393,7 @@ export function authenticate(service: AuthService) {
 /**
  * Fastify preHandler that authenticates and checks if the user has one of the required roles.
  * @param service - The auth service instance.
- * @param roles - Allowed roles for this route.
+ * @param roles - Allowed roles for this route. Optionally, the first argument can be a cookie access token name if it's not a valid role.
  * @returns Fastify preHandler function.
  */
 export function requireRole(service: AuthService, ...roles: string[]) {
@@ -234,7 +401,7 @@ export function requireRole(service: AuthService, ...roles: string[]) {
 
   return async (request: FastifyRequest, reply: FastifyReply) => {
     try {
-      const token = extractBearerToken(request);
+      const token = extractToken(request);
       const user = await service.authenticate(token);
       checkRole(user);
       request.authUser = user;
@@ -249,10 +416,57 @@ export function requireRole(service: AuthService, ...roles: string[]) {
   };
 }
 
-function extractBearerToken(request: FastifyRequest): string {
-  const header = request.headers.authorization;
-  if (!header?.startsWith("Bearer ")) {
-    throw new AuthError("Missing or invalid authorization header", "INVALID_TOKEN", 401);
-  }
-  return header.slice(7);
+/**
+ * Creates middleware factories that are pre-configured with cookie support.
+ * Use this when cookie mode is enabled to avoid passing the cookie name to every middleware call.
+ * @param service - The auth service instance.
+ * @param accessTokenName - Cookie name for the access token.
+ * @returns Object with `authenticate` and `requireRole` middleware factories.
+ */
+export function createCookieMiddleware(service: AuthService, accessTokenName: string) {
+  return {
+    /**
+     * Fastify preHandler that authenticates via cookie or Bearer token and populates `request.authUser`.
+     * @returns Fastify preHandler function.
+     */
+    authenticate() {
+      return async (request: FastifyRequest, reply: FastifyReply) => {
+        try {
+          const token = extractToken(request, accessTokenName);
+          request.authUser = await service.authenticate(token);
+        } catch (error) {
+          if (error instanceof AuthError) {
+            return reply
+              .status(error.statusCode)
+              .send({ error: error.code, message: error.message });
+          }
+          throw error;
+        }
+      };
+    },
+    /**
+     * Fastify preHandler that authenticates via cookie or Bearer token and checks if the user has one of the required roles.
+     * @param roles - Allowed roles for this route.
+     * @returns Fastify preHandler function.
+     */
+    requireRole(...roles: string[]) {
+      const checkRole = service.authorize(...roles);
+
+      return async (request: FastifyRequest, reply: FastifyReply) => {
+        try {
+          const token = extractToken(request, accessTokenName);
+          const user = await service.authenticate(token);
+          checkRole(user);
+          request.authUser = user;
+        } catch (error) {
+          if (error instanceof AuthError) {
+            return reply
+              .status(error.statusCode)
+              .send({ error: error.code, message: error.message });
+          }
+          throw error;
+        }
+      };
+    },
+  };
 }
