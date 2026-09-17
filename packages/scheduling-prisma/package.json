@@ -1,6 +1,6 @@
 {
   "name": "@forjakit/scheduling-prisma",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Prisma storage adapter for `@forjakit/scheduling`. Implements `SchedulingStorage` and `AvailabilityStorage` interfaces using Prisma model delegates, so you can plug a Prisma-backed database into the scheduling service with zero custom SQL.",
   "license": "MIT",
   "author": "Giovani de Biagi Alves <giovani@giovanialves.dev>",
@@ -31,7 +31,7 @@
     "dev": "tsup --watch"
   },
   "dependencies": {
-    "@forjakit/scheduling": "^0.1.1"
+    "@forjakit/scheduling": "^0.2.0"
   },
   "devDependencies": {
     "tsup": "^8.5.1",

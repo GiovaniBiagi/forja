@@ -1,6 +1,6 @@
 {
   "name": "@forjakit/scheduling-fastify",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Fastify plugin that exposes `@forjakit/scheduling` as a REST API. Registers CRUD routes for scheduled events with tenant isolation, input validation, auth guard hooks, and structured error responses.",
   "license": "MIT",
   "author": "Giovani de Biagi Alves <giovani@giovanialves.dev>",
@@ -31,7 +31,7 @@
     "dev": "tsup --watch"
   },
   "peerDependencies": {
-    "@forjakit/scheduling": "^0.1.0",
+    "@forjakit/scheduling": "^0.2.0",
     "fastify": "^5.12.1",
     "zod": "^3.24.2"
   },

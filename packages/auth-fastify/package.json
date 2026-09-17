@@ -1,6 +1,6 @@
 {
   "name": "@forjakit/auth-fastify",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Fastify plugin that exposes `@forjakit/auth` as a REST API. Registers auth routes with tenant isolation, input validation, rate limiting, optional cookie-based token delivery, and structured error responses. Also provides standalone middleware factories f",
   "license": "MIT",
   "author": "Giovani de Biagi Alves <giovani@giovanialves.dev>",
@@ -32,7 +32,7 @@
   },
   "peerDependencies": {
     "@fastify/cookie": "^11.0.0",
-    "@forjakit/auth": "^0.1.0",
+    "@forjakit/auth": "^0.2.0",
     "fastify": "^5.12.1",
     "zod": "^3.24.2"
   },

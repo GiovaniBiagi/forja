@@ -1,6 +1,6 @@
 {
   "name": "@forjakit/auth-prisma",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Prisma storage adapters for `@forjakit/auth`. Implements all storage interfaces (`AuthStorage`, `TokenBlacklist`, `RefreshTokenStore`, `PasswordResetStorage`, `PasswordUpdateStorage`, `EmailVerificationStorage`) using Prisma model delegates, so you can pl",
   "license": "MIT",
   "author": "Giovani de Biagi Alves <giovani@giovanialves.dev>",
@@ -31,7 +31,7 @@
     "dev": "tsup --watch"
   },
   "dependencies": {
-    "@forjakit/auth": "^0.1.1"
+    "@forjakit/auth": "^0.2.0"
   },
   "devDependencies": {
     "tsup": "^8.5.1",

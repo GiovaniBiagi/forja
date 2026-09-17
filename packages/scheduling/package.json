@@ -1,6 +1,6 @@
 {
   "name": "@forjakit/scheduling",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Framework-agnostic scheduling engine for any domain that needs time-based event management. Handles sports matches, service appointments, room bookings, and anything else that involves scheduling participants at specific times.",
   "license": "MIT",
   "author": "Giovani de Biagi Alves <giovani@giovanialves.dev>",
