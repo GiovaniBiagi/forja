@@ -1,15 +1,30 @@
 {
   "name": "@forjakit/auth",
   "version": "0.1.1",
+  "description": "Framework-agnostic authentication service for any application that needs user registration, login, JWT tokens, role-based authorization, password reset, and email verification. The core package contains zero framework or database dependencies -- it define",
+  "license": "MIT",
+  "author": "Giovani de Biagi Alves <giovani@giovanialves.dev>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GiovaniBiagi/forja.git",
+    "directory": "packages/auth"
+  },
+  "homepage": "https://github.com/GiovaniBiagi/forja/tree/main/packages/auth#readme",
+  "bugs": {
+    "url": "https://github.com/GiovaniBiagi/forja/issues"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     }
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "clean": "rm -rf dist",
@@ -27,8 +42,5 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "files": [
-    "dist"
-  ]
+  }
 }

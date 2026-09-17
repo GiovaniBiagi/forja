@@ -17,5 +17,15 @@
     "@commitlint/config-conventional": "^20.5.3",
     "husky": "^9.1.7",
     "vitest": "^4.1.11"
+  },
+  "license": "MIT",
+  "author": "Giovani de Biagi Alves <giovani@giovanialves.dev>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GiovaniBiagi/forja.git"
+  },
+  "homepage": "https://github.com/GiovaniBiagi/forja#readme",
+  "bugs": {
+    "url": "https://github.com/GiovaniBiagi/forja/issues"
   }
 }

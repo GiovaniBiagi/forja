@@ -1,19 +1,39 @@
 {
   "name": "@forjakit/scheduling-fastify",
   "version": "0.1.1",
+  "description": "Fastify plugin that exposes `@forjakit/scheduling` as a REST API. Registers CRUD routes for scheduled events with tenant isolation, input validation, auth guard hooks, and structured error responses.",
+  "license": "MIT",
+  "author": "Giovani de Biagi Alves <giovani@giovanialves.dev>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GiovaniBiagi/forja.git",
+    "directory": "packages/scheduling-fastify"
+  },
+  "homepage": "https://github.com/GiovaniBiagi/forja/tree/main/packages/scheduling-fastify#readme",
+  "bugs": {
+    "url": "https://github.com/GiovaniBiagi/forja/issues"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     }
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "clean": "rm -rf dist",
     "dev": "tsup --watch"
+  },
+  "peerDependencies": {
+    "@forjakit/scheduling": "^0.1.0",
+    "fastify": "^5.12.1",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@forjakit/scheduling": "workspace:*",
@@ -24,13 +44,5 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "files": [
-    "dist"
-  ],
-  "peerDependencies": {
-    "@forjakit/scheduling": "^0.1.0",
-    "fastify": "^5.12.1",
-    "zod": "^3.24.2"
   }
 }

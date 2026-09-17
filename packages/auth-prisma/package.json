@@ -1,15 +1,30 @@
 {
   "name": "@forjakit/auth-prisma",
   "version": "0.1.1",
+  "description": "Prisma storage adapters for `@forjakit/auth`. Implements all storage interfaces (`AuthStorage`, `TokenBlacklist`, `RefreshTokenStore`, `PasswordResetStorage`, `PasswordUpdateStorage`, `EmailVerificationStorage`) using Prisma model delegates, so you can pl",
+  "license": "MIT",
+  "author": "Giovani de Biagi Alves <giovani@giovanialves.dev>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GiovaniBiagi/forja.git",
+    "directory": "packages/auth-prisma"
+  },
+  "homepage": "https://github.com/GiovaniBiagi/forja/tree/main/packages/auth-prisma#readme",
+  "bugs": {
+    "url": "https://github.com/GiovaniBiagi/forja/issues"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     }
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsup",
     "clean": "rm -rf dist",
@@ -24,8 +39,5 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "files": [
-    "dist"
-  ]
+  }
 }
