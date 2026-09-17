@@ -4,6 +4,11 @@ Modular business toolkit for building applications faster. "Forja" means "forge"
 
 All packages live under the `@forjakit/*` npm scope.
 
+> **Status — `0.1.0`, early.** The API is unstable and may change between minor
+> versions until `1.0.0`. The framework-agnostic cores (`auth`, `scheduling`) are
+> covered by tests; the Fastify and Prisma adapters are not yet. This is auth
+> code — read it before you depend on it, and don't treat it as production-hardened.
+
 ## Philosophy
 
 - **Framework-agnostic cores.** Business logic packages have zero framework or database dependencies. Pure functions, interfaces, and Zod schemas.
@@ -161,4 +166,4 @@ See [CLAUDE.md](./CLAUDE.md) for project guidelines including:
 
 ## License
 
-MIT
+MIT — see [LICENSE](./LICENSE).
