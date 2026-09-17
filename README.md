@@ -4,7 +4,7 @@ Modular business toolkit for building applications faster. "Forja" means "forge"
 
 All packages live under the `@forjakit/*` npm scope.
 
-> **Status — `0.1.0`, early.** The API is unstable and may change between minor
+> **Status — early, pre-1.0.** The API is unstable and may change between minor
 > versions until `1.0.0`. The framework-agnostic cores (`auth`, `scheduling`) are
 > covered by tests; the Fastify and Prisma adapters are not yet. This is auth
 > code — read it before you depend on it, and don't treat it as production-hardened.
@@ -38,12 +38,12 @@ Cores define business logic and storage interfaces. HTTP adapters expose REST ro
 
 | Package | Description | Version |
 | ------- | ----------- | ------- |
-| [`@forjakit/auth`](./packages/auth) | Framework-agnostic auth service: registration, login, JWT tokens, roles, password reset, email verification | `0.1.0` |
-| [`@forjakit/auth-fastify`](./packages/auth-fastify) | Fastify plugin for `@forjakit/auth`: routes, middleware, cookie support, rate limiting | `0.1.0` |
-| [`@forjakit/auth-prisma`](./packages/auth-prisma) | Prisma storage adapters for `@forjakit/auth` | `0.1.0` |
-| [`@forjakit/scheduling`](./packages/scheduling) | Framework-agnostic scheduling engine: events, conflict detection, availability slots | `0.1.0` |
-| [`@forjakit/scheduling-fastify`](./packages/scheduling-fastify) | Fastify plugin for `@forjakit/scheduling`: CRUD routes, guards, tenant resolution | `0.1.0` |
-| [`@forjakit/scheduling-prisma`](./packages/scheduling-prisma) | Prisma storage adapters for `@forjakit/scheduling` | `0.1.0` |
+| [`@forjakit/auth`](./packages/auth) | Framework-agnostic auth service: registration, login, JWT tokens, roles, password reset, email verification | `0.1.1` |
+| [`@forjakit/auth-fastify`](./packages/auth-fastify) | Fastify plugin for `@forjakit/auth`: routes, middleware, cookie support, rate limiting | `0.1.1` |
+| [`@forjakit/auth-prisma`](./packages/auth-prisma) | Prisma storage adapters for `@forjakit/auth` | `0.1.1` |
+| [`@forjakit/scheduling`](./packages/scheduling) | Framework-agnostic scheduling engine: events, conflict detection, availability slots | `0.1.1` |
+| [`@forjakit/scheduling-fastify`](./packages/scheduling-fastify) | Fastify plugin for `@forjakit/scheduling`: CRUD routes, guards, tenant resolution | `0.1.1` |
+| [`@forjakit/scheduling-prisma`](./packages/scheduling-prisma) | Prisma storage adapters for `@forjakit/scheduling` | `0.1.1` |
 
 ## Quick Start
 
