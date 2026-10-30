@@ -52,6 +52,7 @@ app.register(authPlugin, {
 | `onPasswordResetToken` | `(token, { email, tenantId }) => Promise<void>` | No | -- | Callback to send the reset email |
 | `onVerificationToken` | `(token, { email, tenantId }) => Promise<void>` | No | -- | Callback to send the verification email |
 | `cookie` | `AuthCookieOptions` | No | Disabled | Cookie-based token delivery configuration |
+| `registration` | `boolean` | No | `true` | Set to `false` to skip `POST /register` (invite-only or seeded-account apps) |
 
 ## Routes
 

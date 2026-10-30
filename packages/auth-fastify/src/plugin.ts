@@ -1,6 +1,9 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { type AuthService, type RateLimiter, AuthError, Errors } from "@forjakit/auth";
-import { ZodError } from "zod";
+import { ZodError, type z } from "zod";
+
+/** Any role enum a consumer may pass to `createAuthService`. */
+type RoleEnum = z.ZodEnum<[string, ...string[]]>;
 
 declare module "fastify" {
   interface FastifyRequest {
@@ -27,9 +30,9 @@ export interface AuthCookieOptions {
 }
 
 /** Options for registering the auth Fastify plugin. */
-export interface AuthPluginOptions {
+export interface AuthPluginOptions<T extends RoleEnum = RoleEnum> {
   /** The auth service instance created via `createAuthService`. */
-  service: AuthService;
+  service: AuthService<T>;
   /** Custom function to extract the tenant ID from a request. Defaults to `x-tenant-id` header or subdomain. */
   tenantResolver?: (req: FastifyRequest) => string;
   /** Route prefix (e.g., "/auth"). */
@@ -44,6 +47,8 @@ export interface AuthPluginOptions {
   onVerificationToken?: (token: string, user: { email: string; tenantId: string }) => Promise<void>;
   /** Optional cookie configuration. When enabled, tokens are delivered via HttpOnly cookies instead of the response body. */
   cookie?: AuthCookieOptions;
+  /** Whether to expose `POST /register`. Set to `false` for invite-only or seeded-account apps. Defaults to `true`. */
+  registration?: boolean;
 }
 
 function defaultTenantResolver(req: FastifyRequest): string {
@@ -155,9 +160,9 @@ function extractRefreshToken(request: FastifyRequest, refreshTokenName?: string)
  * @param fastify - Fastify instance.
  * @param options - Plugin options including auth service, tenant resolver, and optional cookie configuration.
  */
-export async function authPlugin(
+export async function authPlugin<T extends RoleEnum>(
   fastify: FastifyInstance,
-  options: AuthPluginOptions
+  options: AuthPluginOptions<T>
 ) {
   const {
     service,
@@ -167,6 +172,7 @@ export async function authPlugin(
     onPasswordResetToken,
     onVerificationToken,
     cookie,
+    registration = true,
   } = options;
   const { schemas } = service;
 
@@ -183,8 +189,9 @@ export async function authPlugin(
       }
     : undefined;
 
-  // Register @fastify/cookie if cookie mode is enabled
-  if (cookieEnabled) {
+  // Register @fastify/cookie if cookie mode is enabled, unless the app already did
+  // (apps register it globally so their own protected routes can read the session cookie).
+  if (cookieEnabled && !fastify.hasRequestDecorator("cookies")) {
     await fastify.register(import("@fastify/cookie"));
   }
 
@@ -229,24 +236,26 @@ export async function authPlugin(
   });
 
   // POST /register
-  const registerOpts = rateLimit("register") ? { preHandler: rateLimit("register") } : {};
-  fastify.post("/register", registerOpts, async (request: FastifyRequest, reply: FastifyReply) => {
-    const tenantId = tenantResolver(request);
-    const body = request.body as Record<string, unknown>;
-    const result = await service.register({ ...body, tenantId } as Parameters<typeof service.register>[0]);
+  if (registration) {
+    const registerOpts = rateLimit("register") ? { preHandler: rateLimit("register") } : {};
+    fastify.post("/register", registerOpts, async (request: FastifyRequest, reply: FastifyReply) => {
+      const tenantId = tenantResolver(request);
+      const body = request.body as Record<string, unknown>;
+      const result = await service.register({ ...body, tenantId } as Parameters<typeof service.register>[0]);
 
-    if (result.verificationToken && onVerificationToken) {
-      await onVerificationToken(result.verificationToken, { email: result.user.email, tenantId });
-    }
+      if (result.verificationToken && onVerificationToken) {
+        await onVerificationToken(result.verificationToken, { email: result.user.email, tenantId });
+      }
 
-    if (cookieEnabled && cookieOpts) {
-      setTokenCookies(reply, result, cookieOpts);
-      const { accessToken: _, refreshToken: __, ...rest } = result;
-      return reply.status(201).send(rest);
-    }
+      if (cookieEnabled && cookieOpts) {
+        setTokenCookies(reply, result, cookieOpts);
+        const { accessToken: _, refreshToken: __, ...rest } = result;
+        return reply.status(201).send(rest);
+      }
 
-    return reply.status(201).send(result);
-  });
+      return reply.status(201).send(result);
+    });
+  }
 
   // POST /login
   const loginOpts = rateLimit("login") ? { preHandler: rateLimit("login") } : {};
@@ -374,7 +383,7 @@ export async function authPlugin(
  * @param cookieAccessTokenName - Optional cookie name for the access token. When provided, checks cookies before the Authorization header.
  * @returns Fastify preHandler function.
  */
-export function authenticate(service: AuthService, cookieAccessTokenName?: string) {
+export function authenticate<T extends RoleEnum>(service: AuthService<T>, cookieAccessTokenName?: string) {
   return async (request: FastifyRequest, reply: FastifyReply) => {
     try {
       const token = extractToken(request, cookieAccessTokenName);
@@ -396,7 +405,7 @@ export function authenticate(service: AuthService, cookieAccessTokenName?: strin
  * @param roles - Allowed roles for this route. Optionally, the first argument can be a cookie access token name if it's not a valid role.
  * @returns Fastify preHandler function.
  */
-export function requireRole(service: AuthService, ...roles: string[]) {
+export function requireRole<T extends RoleEnum>(service: AuthService<T>, ...roles: string[]) {
   const checkRole = service.authorize(...roles);
 
   return async (request: FastifyRequest, reply: FastifyReply) => {
@@ -423,7 +432,7 @@ export function requireRole(service: AuthService, ...roles: string[]) {
  * @param accessTokenName - Cookie name for the access token.
  * @returns Object with `authenticate` and `requireRole` middleware factories.
  */
-export function createCookieMiddleware(service: AuthService, accessTokenName: string) {
+export function createCookieMiddleware<T extends RoleEnum>(service: AuthService<T>, accessTokenName: string) {
   return {
     /**
      * Fastify preHandler that authenticates via cookie or Bearer token and populates `request.authUser`.
