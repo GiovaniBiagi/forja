@@ -285,7 +285,7 @@ app.register(authPlugin, {
 
 - On **login/register**, tokens are set as `HttpOnly` cookies. The response body contains the user data but not the tokens.
 - On **refresh**, the refresh token is read from the cookie. New tokens are set as cookies. The response body contains `{ "message": "Tokens refreshed" }`.
-- On **logout** and **401 errors**, token cookies are cleared (set to empty with `maxAge: 0`).
+- On **logout** and on a **rejected refresh** (401), token cookies are cleared (set to empty with `maxAge: 0`). Other 401 responses, such as `GET /me` with an expired access token, keep the cookies so the client can still refresh the session.
 - **Token extraction** always checks cookies first, then falls back to the `Authorization: Bearer` header.
 
 Cookie max ages: access token = 15 minutes, refresh token = 7 days.

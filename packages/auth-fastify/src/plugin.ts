@@ -195,6 +195,19 @@ export async function authPlugin<T extends RoleEnum>(
     await fastify.register(import("@fastify/cookie"));
   }
 
+  // An expired access token must not destroy the refresh cookie: that cookie is what renews the
+  // session. Cookies are cleared only where the session is really over: rejected refresh or logout.
+  async function clearingCookiesOnUnauthorized<R>(reply: FastifyReply, action: () => Promise<R>): Promise<R> {
+    try {
+      return await action();
+    } catch (error) {
+      if (cookieOpts && error instanceof AuthError && error.statusCode === 401) {
+        clearTokenCookies(reply, cookieOpts);
+      }
+      throw error;
+    }
+  }
+
   // Rate limit preHandler factory
   function rateLimit(action: string) {
     if (!rateLimiter) return undefined;
@@ -216,9 +229,6 @@ export async function authPlugin<T extends RoleEnum>(
       const response: Record<string, unknown> = { error: error.code, message: error.message };
       if (error.statusCode === 429) {
         reply.header("Retry-After", reply.getHeader("Retry-After") ?? "60");
-      }
-      if (cookieEnabled && error.statusCode === 401) {
-        clearTokenCookies(reply, cookieOpts!);
       }
       return reply.status(error.statusCode).send(response);
     }
@@ -290,7 +300,7 @@ export async function authPlugin<T extends RoleEnum>(
       refreshToken = parsed.refreshToken;
     }
 
-    const result = await service.refresh(refreshToken);
+    const result = await clearingCookiesOnUnauthorized(reply, () => service.refresh(refreshToken));
 
     if (cookieEnabled && cookieOpts) {
       setTokenCookies(reply, result, cookieOpts);
@@ -310,8 +320,9 @@ export async function authPlugin<T extends RoleEnum>(
 
   // POST /logout
   fastify.post("/logout", async (request: FastifyRequest, reply: FastifyReply) => {
-    const token = extractToken(request, cookieOpts?.accessTokenName);
-    await service.logout(token);
+    await clearingCookiesOnUnauthorized(reply, () =>
+      service.logout(extractToken(request, cookieOpts?.accessTokenName))
+    );
 
     if (cookieEnabled && cookieOpts) {
       clearTokenCookies(reply, cookieOpts);
